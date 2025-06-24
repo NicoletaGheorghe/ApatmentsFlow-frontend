@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 7, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/nico_/ApartmentsFlow-frontend/apartmentsflow-frontend/src/app/listings/layout.js"],"sourcesContent":["import Sidebar from \"../components/Sidebar\";\r\n\r\nexport default function ListingsLayout({ children }) {\r\n  return (\r\n    <div className=\"flex\">\r\n      <Sidebar/>\r\n      <main className=\" w-full p-6\">{children}</main>\r\n    </div>\r\n  );\r\n}\r\n"],"names":[],"mappings":";;;;AAAA;;;AAEe,SAAS,eAAe,EAAE,QAAQ,EAAE;IACjD,qBACE,8OAAC;QAAI,WAAU;;0BACb,8OAAC,mIAAA,CAAA,UAAO;;;;;0BACR,8OAAC;gBAAK,WAAU;0BAAe;;;;;;;;;;;;AAGrC","debugId":null}}]
+}

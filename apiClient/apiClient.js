@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // Base URL for the API
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001/api";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000/api";
 
 export class ApiClient {
     constructor(getAuthToken, clearAuthToken) {
@@ -126,6 +126,10 @@ export class ApiClient {
                 }
 
        }
+      async getUser() {
+            const response = await this.apiCall("get", "/users/profile");
+             return response.data;
+            }
        async getProfile() {
         try{
             const response = await this.apiCall("get", API_BASE_URL + "/users/profile");
@@ -159,15 +163,25 @@ export class ApiClient {
     }
 
        async getApartments(page = 1, limit = 6, filters = {}) {
-            const params = new URLSearchParams({ page, limit, ...filters });
+            const params = { page, limit, ...filters };
             try {
                 const queryString = new URLSearchParams(params).toString();
-                const endpoint = API_BASE_URL + "/apartments" + (queryString ? `?${queryString}` : "") ;
+                const endpoint = "/apartments" + (queryString ? `?${queryString}` : "");
                 const response = await this.apiCall("get", endpoint);
-                return response;
+                return response.data;
             } catch (error) {
                 throw error;
             }
         }
+              async addFavorite(apartmentId) {
+                return this.apiCall("post", "/favorites", { apartmentId });
+                }
 
+              async removeFavorite(apartmentId) {
+                return this.apiCall("delete", `/favorites/${apartmentId}`);
+                }
+
+              async getFavorites() {
+                return this.apiCall("get", "/favorites");
+                }
 }
