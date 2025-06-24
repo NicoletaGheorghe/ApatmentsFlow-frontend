@@ -12,35 +12,56 @@ export default function ListingsPage() {
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
   const [limit] = useState(6);
+  const [favoriteIds, setFavoriteIds] = useState(new Set());
+  const [toggleLoading, setToggleLoading] = useState(false);
+  const apiClient = new ApiClient();
   
    useEffect(() => {
     const fetchFlats = async () => {
       try {
-        const apiClient = new ApiClient();
         if (!apiClient.isLoggedIn()) {
           window.location.href = "auth/unauthorized";
           return;
         }
-        const response = await apiClient.getApartments({ page, limit });
-        console.log("API response:", response.data);
-        if (Array.isArray(response.data.apartments)) {
-        setFlats(response.data.apartments);
-      } else {
-        setFlats([]);
-      }
-      setPages(response.data.pages);
-      } catch (err) {
-        setError(
-          err.response?.data?.message ||
-            "Failed to fetch apartments. Please try again later."
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
+        const flatsResponse = await apiClient.getApartments(page, limit); // assume it accepts page + limit
+        const userData = await apiClient.getUser();
+        setFlats(flatsResponse.apartments || []);
+        setPages(flatsResponse.pages || 1);
+         setFavoriteIds(new Set(userData.favorites || []));
+        } catch (err) {
+          console.error("Error fetching apartments or favorites:", err);
+          setError(
+            err.response?.data?.message ||
+            err.message ||
+            "Failed to fetch apartments or favorites. Please try again later."
+          );
+        } finally {
+          setLoading(false);
+        }
+      };
      fetchFlats();
   }, [page, limit]);
-
+  const toggleFavorite = async (apartmentId) => {
+    setToggleLoading(true);
+    try {
+      if (favoriteIds.has(apartmentId)) {
+        await apiClient.removeFavorite(apartmentId);
+        setFavoriteIds(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(apartmentId);
+          return newSet;
+        });
+      } else {
+        await apiClient.addFavorite(apartmentId);
+        setFavoriteIds(prev => new Set(prev).add(apartmentId));
+      }
+    } catch (err) {
+      console.error("Failed to toggle favorite", err);
+    } finally {
+      setToggleLoading(false);
+    }
+  };
+  
   const filteredFlats = (flats || []).filter((flat) =>
     flat.title.toLowerCase().includes(search.toLowerCase())
   );
@@ -87,27 +108,14 @@ if (loading) {
         ) : (
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6 max-w-5xl mx-auto px-2">
         {filteredFlats.map((flat, index) => {
-          const { location = {} } = flat;
-          const { coordinates = [], address = {} } = location;
-          //const [longitude, latitude] = coordinates;
+          console.log(`Data passed to ListingCard for "${flat.title}":`, { images: flat.images });
 
           return (
             <ListingCard
               key={index}
-              title={flat.title}
-              description={flat.description}
-              price={`£${flat.price}/mo`}
-              street={address.street}
-              city={address.city}
-              state={address.state}
-              zipCode={address.zipCode}
-              country={address.country}
-              bedrooms={flat.bedrooms}
-              bathrooms={flat.bathrooms}
-              area={flat.area}
-              amenities={(flat.amenities || []).join(", ")}
-              images={flat.images}
-              status={flat.status}
+              apartment={flat}
+              isFavorited={favoriteIds.has(flat._id)}
+              onToggleFavorite={() => toggleFavorite(flat._id)}
             />
           );
       })}
@@ -115,7 +123,7 @@ if (loading) {
       </div>
 )}
      </>
-     <div className="pagination-controls flex justify-between mt-5">
+     <div className="pagination-controls flex justify-between mt-5 mx-25">
         <button
           disabled={page === 1}
           onClick={() => setPage((p) => Math.max(1, p - 1))}
