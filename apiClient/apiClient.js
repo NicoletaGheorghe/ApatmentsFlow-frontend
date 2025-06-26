@@ -111,9 +111,10 @@ export class ApiClient {
             }
           } 
  } 
-       async register(name, email, password) {
+       async register(name, email, password, profileImage) {
+        
           try {
-            const response = await this.apiCall("post", "/auth/register", { name, email, password });
+            const response = await this.apiCall("post", "/auth/register", { name, email, password, profileImage });
           if (response.data && response.data.token) {
                     this.setToken(response.data.token);
                     return response;

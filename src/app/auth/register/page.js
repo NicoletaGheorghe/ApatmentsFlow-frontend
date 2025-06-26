@@ -3,6 +3,7 @@ import { ApiClient } from "../../../../apiClient/apiClient";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/context/AuthContext";
+import { uploadImageToCloudinary } from "@/app/utils/cloudinary";
 
 export default function Register() {
   const [registrationForm, setRegistrationForm] = useState({
@@ -10,6 +11,7 @@ export default function Register() {
     email: "",
     password: "",
   });
+  const [profileImageFile, setProfileImageFile] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -19,7 +21,11 @@ export default function Register() {
     setRegistrationForm({ ...registrationForm, [e.target.name]: e.target.value });
     setError("");
   }
-
+   
+  function handleFileChange(e) {
+    setProfileImageFile(e.target.files[0]);
+  }
+  
   const handleSubmit =async (e) => {
     e.preventDefault();
     if (!registrationForm.name || !registrationForm.email || !registrationForm.password){
@@ -27,9 +33,21 @@ export default function Register() {
       return;
     }
     setLoading(true);
-    try{
+    try {
+      let profileImageUrl = "";
+
+      if (profileImageFile) {
+        profileImageUrl = await uploadImageToCloudinary(profileImageFile);
+        setRegistrationForm(prev => ({ ...prev, profileImage: profileImageUrl }));
+      }
+
       const apiClient = new ApiClient();
-      const response = await register(registrationForm.name, registrationForm.email, registrationForm.password);
+      const response = await register(
+        registrationForm.name,
+        registrationForm.email,
+        registrationForm.password,
+        profileImageUrl
+      );
       if (response.data && response.data.token){
         router.push("/listings");
       } else {
@@ -80,6 +98,15 @@ export default function Register() {
             onChange={handleChange}
             className="w-full p-2 border rounded"
             required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Profile Image</label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            className="w-full"
           />
         </div>
         {error && <p className="mb-4 text-red-500 text-sm text-center">{error}</p>}
