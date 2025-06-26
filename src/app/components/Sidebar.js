@@ -1,21 +1,32 @@
 "use client";
 
 export default function Sidebar({ filters = {}, onFilterChange }) {
-  const { minPrice = 0, maxPrice = 3000, bedrooms = 0, radius = 10 } = filters;
+  const {
+    minPrice = 0,
+    maxPrice = 3000,
+    bedrooms = 0,
+    radius = 10,
+    city = "",
+    status = "",
+  } = filters;
+  const numericFields = ["minPrice", "maxPrice", "bedrooms", "radius"];
 
   const handleChange = (field, value) => {
-    onFilterChange({
-      ...filters,
-      [field]: parseInt(value),
-    });
-  };
+  onFilterChange(prevFilters => ({
+    ...prevFilters,
+    [field]: numericFields.includes(field) ? parseInt(value) : value,
+  }));
+};
+
 
   const resetFilters = () => {
-    onFilterChange({
-      minPrice: 0,
-      maxPrice: 3000,
-      bedrooms: 0,
-      radius: 10,
+     onFilterChange({
+        minPrice: 0,
+        maxPrice: 3000,
+        bedrooms: 0,
+        radius: 10,
+        city: "",
+        status: "",
     });
   };
 
@@ -77,6 +88,33 @@ export default function Sidebar({ filters = {}, onFilterChange }) {
           onChange={(e) => handleChange("radius", e.target.value)}
           className="w-full"
         />
+      </div>
+
+      {/* City (text input) */}
+      <div className="mb-6">
+        <label className="block font-semibold mb-1">City:</label>
+        <input
+          type="text"
+          value={city}
+          onChange={(e) => handleChange("city", e.target.value)}
+          placeholder="Enter city"
+          className="w-full border border-gray-300 rounded px-2 py-1"
+        />
+      </div>
+
+      {/* Status (dropdown select) */}
+      <div className="mb-6">
+        <label className="block font-semibold mb-1">Status:</label>
+        <select
+          value={status}
+          onChange={(e) => handleChange("status", e.target.value)}
+          className="w-full border border-gray-300 rounded px-2 py-1"
+        >
+          <option value="">All</option>
+          <option value="available">Available</option>
+          <option value="pending">Pending</option>
+          <option value="sold">Sold</option>
+        </select>
       </div>
 
       {/* Reset Filters */}

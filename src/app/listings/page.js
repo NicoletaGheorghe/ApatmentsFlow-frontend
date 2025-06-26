@@ -15,6 +15,7 @@ export default function ListingsPage() {
   const [favoriteIds, setFavoriteIds] = useState(new Set());
   const [toggleLoading, setToggleLoading] = useState(false);
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+  const [showPublic, setShowPublic] = useState(null); 
   const apiClient = new ApiClient();
   
    useEffect(() => {
@@ -27,6 +28,7 @@ export default function ListingsPage() {
         const flatsResponse = await apiClient.getApartments(page, limit); 
         const userData = await apiClient.getUser();
         setFlats(flatsResponse.apartments || []);
+        console.log("Apartments fetched from API:", flatsResponse.apartments);
         setPages(flatsResponse.pages || 1);
          setFavoriteIds(new Set(userData.favorites || []));
         } catch (err) {
@@ -63,9 +65,14 @@ export default function ListingsPage() {
     }
   };
   
-  const filteredFlats = (flats || []).filter((flat) =>
+  const filteredFlats = (flats || [])
+  .filter((flat) =>
     flat.title.toLowerCase().includes(search.toLowerCase())
-  );
+  )
+  .filter((flat) => {
+    if (showPublic === null) return true; 
+    return flat.isPublic === showPublic;
+  });
 
   const handleDelete = async (id) => {
       try {
@@ -77,8 +84,12 @@ export default function ListingsPage() {
         alert("Failed to delete.");
       }
     };
+console.log("Filtered apartments for showPublic =", showPublic);
+filteredFlats.forEach(flat => {
+  console.log(flat.title, flat.isPublic);
+});
 
-
+ 
 if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -108,6 +119,35 @@ if (loading) {
       <div className="ml-5 md:ml-25">
         <h1 className="text-3xl font-bold mb-2 ">Apartment Listings</h1>
         <p className="mb-6">Here you can browse all available apartments.</p>
+         <div className="flex items-center gap-4 mt-4 ml-5 md:ml-25">
+          <label>
+            <input
+              type="radio"
+              name="privacyFilter"
+              checked={showPublic === null}
+              onChange={() => setShowPublic(null)}
+            />{" "}
+            All
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="privacyFilter"
+              checked={showPublic === true}
+              onChange={() => setShowPublic(true)}
+            />{" "}
+            Public
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="privacyFilter"
+              checked={showPublic === false}
+              onChange={() => setShowPublic(false)}
+            />{" "}
+            Private
+          </label>
+        </div>
 
         <SearchBar value={search} onChange={(e) => setSearch(e.target.value)}  />
         </div>

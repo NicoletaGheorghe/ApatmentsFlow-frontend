@@ -16,7 +16,7 @@ const ProfilePage = () => {
           alert("Failed to delete account.");
         }
   };
-
+console.log("ProfilePage user object:", user);
   if (loading) return <p>Loading...</p>;
   if (!user) return <p>Please log in to view your profile.</p>;
 
