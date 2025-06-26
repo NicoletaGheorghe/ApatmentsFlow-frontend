@@ -23,7 +23,7 @@ export default function Header() {
         <Link href="/" className="hover:text-[var(--color-primary)]">
           Home
         </Link>
-        <Link href="/apartmentAdd" className="hover:text-[var(--color-primary)]">
+        <Link href="/apartment/apartmentAdd" className="hover:text-[var(--color-primary)]">
           Add
         </Link>
         <Link href="/listings" className="hover:text-[var(--color-primary)]">
@@ -60,7 +60,7 @@ export default function Header() {
               </li>
               <li>
                 <Link
-                  href="/apartmentAdd"
+                  href="apartment/apartmentAdd"
                   onClick={() => setMenuOpen(false)}
                   className="block py-2 px-4 hover:text-[var(--color-primary)]"
                 >

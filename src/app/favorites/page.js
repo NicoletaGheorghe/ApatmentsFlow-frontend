@@ -6,13 +6,17 @@ import ListingCard from '../components/ListingCard';
 export default function FavoritesPage() {
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [favoriteIds, setFavoriteIds] = useState(new Set());
   const apiClient = new ApiClient();
 
   useEffect(() => {
     const fetchFavorites = async () => {
       try {
         const response = await apiClient.getFavorites();
-        setFavorites(response.data.favorites);
+         const favoriteApts = response.data.favorites;
+
+          setFavorites(favoriteApts);
+          setFavoriteIds(new Set(favoriteApts.map(apt => apt._id)));
       } catch (error) {
         console.error('Error loading favorites:', error);
       } finally {
@@ -22,6 +26,25 @@ export default function FavoritesPage() {
 
     fetchFavorites();
   }, []);
+    
+    const toggleFavorite = async (apartmentId) => {
+    try {
+      if (favoriteIds.has(apartmentId)) {
+        await apiClient.removeFavorite(apartmentId);
+        setFavoriteIds((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(apartmentId);
+          return newSet;
+        });
+        setFavorites((prev) => prev.filter(fav => fav._id !== apartmentId));
+      } else {
+        await apiClient.addFavorite(apartmentId);
+        setFavoriteIds((prev) => new Set(prev).add(apartmentId));
+      }
+    } catch (error) {
+      console.error("Failed to toggle favorite", error);
+    }
+  };
 
   if (loading) return <p>Loading your favorites...</p>;
   if (favorites.length === 0) return <p>No favorite apartments yet.</p>;
@@ -31,10 +54,15 @@ export default function FavoritesPage() {
       
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {favorites.map((apartment) => (
-                  <ListingCard key={apartment._id} apartment={apartment} />
+                  <ListingCard
+                   key={apartment._id}
+                   apartment={apartment}
+                    isFavorited={favoriteIds.has(apartment._id)}
+                    onToggleFavorite={() => toggleFavorite(apartment._id)}
+                    showActions={false}/>
                 ))}
               </div>
-            </div>
+      </div>
         
   );
 }

@@ -14,6 +14,7 @@ export default function ListingsPage() {
   const [limit] = useState(6);
   const [favoriteIds, setFavoriteIds] = useState(new Set());
   const [toggleLoading, setToggleLoading] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
   const apiClient = new ApiClient();
   
    useEffect(() => {
@@ -23,7 +24,7 @@ export default function ListingsPage() {
           window.location.href = "auth/unauthorized";
           return;
         }
-        const flatsResponse = await apiClient.getApartments(page, limit); // assume it accepts page + limit
+        const flatsResponse = await apiClient.getApartments(page, limit); 
         const userData = await apiClient.getUser();
         setFlats(flatsResponse.apartments || []);
         setPages(flatsResponse.pages || 1);
@@ -65,6 +66,18 @@ export default function ListingsPage() {
   const filteredFlats = (flats || []).filter((flat) =>
     flat.title.toLowerCase().includes(search.toLowerCase())
   );
+
+  const handleDelete = async (id) => {
+      try {
+        await apiClient.deleteApartment(id);
+        setFlats((prev) => prev.filter((apt) => apt._id !== id));
+        setConfirmDeleteId(null);
+      } catch (error) {
+        console.error("Delete failed:", error);
+        alert("Failed to delete.");
+      }
+    };
+
 
 if (loading) {
     return (
@@ -116,9 +129,34 @@ if (loading) {
               apartment={flat}
               isFavorited={favoriteIds.has(flat._id)}
               onToggleFavorite={() => toggleFavorite(flat._id)}
+              onDeleteRequest={() => setConfirmDeleteId(flat._id)}
             />
           );
       })}
+      {confirmDeleteId && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded shadow-md max-w-sm w-full">
+            <h2 className="text-lg font-semibold mb-4">Confirm Deletion</h2>
+            <p className="mb-6 text-sm text-gray-700">
+              Are you sure you want to delete this apartment? This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={() => setConfirmDeleteId(null)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDelete(confirmDeleteId)}
+                className="text-white bg-red-600 px-4 py-2 rounded hover:bg-red-700"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       </div>
 )}

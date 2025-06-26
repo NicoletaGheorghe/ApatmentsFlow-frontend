@@ -1,5 +1,9 @@
+"use client";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+
 export default function FavoriteButton({ apartmentId, isInitiallyFavorited, onClick }) {
+  const pathname = usePathname(); 
   const [isFavorited, setIsFavorited] = useState(isInitiallyFavorited);
 
   useEffect(() => {
@@ -10,6 +14,10 @@ export default function FavoriteButton({ apartmentId, isInitiallyFavorited, onCl
     setIsFavorited(!isFavorited);
     if (onClick) await onClick(apartmentId);
   };
+
+  const allowedPaths = ["/listings", "/favorites"];
+
+  if (!allowedPaths.includes(pathname)) return null;
 
   return (
     <button onClick={handleClick}

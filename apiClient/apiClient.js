@@ -82,7 +82,7 @@ export class ApiClient {
         }
        async login(email, password) {
             try {
-                const response = await this.apiCall("post", API_BASE_URL + "/auth/login", { email, password });
+                const response = await this.apiCall("post", "/auth/login", { email, password });
                 
                 if (response.data && response.data.token) {
                     this.setToken(response.data.token);
@@ -100,7 +100,7 @@ export class ApiClient {
            const token = this.getToken();
             try {
                 if (token) {
-                    await this.apiCall("post", API_BASE_URL + "/auth/logout", {token});
+                    await this.apiCall("post",  "/auth/logout", {token});
                 }
             }catch (error) {
                 console.error('Logout error:', error?.response?.data || error.message);
@@ -113,7 +113,7 @@ export class ApiClient {
  } 
        async register(name, email, password) {
           try {
-            const response = await this.apiCall("post", API_BASE_URL + "/auth/register", { name, email, password });
+            const response = await this.apiCall("post", "/auth/register", { name, email, password });
           if (response.data && response.data.token) {
                     this.setToken(response.data.token);
                     return response;
@@ -132,7 +132,7 @@ export class ApiClient {
             }
        async getProfile() {
         try{
-            const response = await this.apiCall("get", API_BASE_URL + "/users/profile");
+            const response = await this.apiCall("get", "/users/profile");
             return response;
         } catch (error) {
             console.error("Failed to fetch user profile:", error);
@@ -142,7 +142,7 @@ export class ApiClient {
 
        async updateProfile(data) {
             try {
-                  const response = await this.apiCall("put", API_BASE_URL + "/users/profile", data);
+                  const response = await this.apiCall("put", "/users/profile", data);
                     return response.data;
         
             } catch (error) {
@@ -150,7 +150,7 @@ export class ApiClient {
                 }
        }
        async removeProfile() {
-            const response = await this.apiCall("delete", API_BASE_URL + "/users/profile");
+            const response = await this.apiCall("delete", "/users/profile");
             return response.data;
         }
 
@@ -161,7 +161,20 @@ export class ApiClient {
             },
         });
     }
+        async getApartment(id) {
+            return this.apiCall("get", `/apartments/${id}`);
+            }
 
+        async updateApartment(id, formData) {
+        return this.apiCall("put", `/apartments/${id}`, formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
+    }
+      async deleteApartment(id){
+        return this.apiCall("delete", `/apartments/${id}`);
+      }
        async getApartments(page = 1, limit = 6, filters = {}) {
             const params = { page, limit, ...filters };
             try {
