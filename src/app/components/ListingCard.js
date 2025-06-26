@@ -1,10 +1,11 @@
 "use client";
 import Image from "next/image";
-import { useState } from "react";
-import React from "react";
+import { useState, useEffect } from "react";
 import FavoriteButton from "./FavoriteButton";
+import { useRouter } from "next/navigation";
 
-const ListingCard = ({ apartment, isFavorited, onToggleFavorite }) => {
+const ListingCard = ({ apartment, isFavorited, onToggleFavorite, onDeleteRequest, showActions = true }) => {
+  const router = useRouter();
   const [modalOpen, setModalOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -48,8 +49,7 @@ const ListingCard = ({ apartment, isFavorited, onToggleFavorite }) => {
   };
   const closeModal = () => setModalOpen(false);
 
-  // Keyboard close
-  React.useEffect(() => {
+  useEffect(() => {
     if (!modalOpen) return;
     const handleKey = (e) => { if (e.key === 'Escape') closeModal(); };
     window.addEventListener('keydown', handleKey);
@@ -88,11 +88,7 @@ const ListingCard = ({ apartment, isFavorited, onToggleFavorite }) => {
           <span className="absolute bottom-2 right-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded">{allImageUrls.length} photos</span>
         )}
         <div className="absolute top-2 right-2 z-10">
-          <FavoriteButton
-            apartmentId={apartment._id}
-            isInitiallyFavorited={isFavorited}
-            onClick={onToggleFavorite}
-          />
+          
         </div>
       </div>
       {/* Modal Gallery */}
@@ -118,7 +114,15 @@ const ListingCard = ({ apartment, isFavorited, onToggleFavorite }) => {
         </div>
       )}
       <div className="p-4">
-        <h3 className="text-xl font-semibold text-gray-800">{title}</h3>
+        <div className="grid grid-cols-5 gap-2 justify-between">
+          <h3 className="col-span-4 text-xl font-semibold text-gray-800">{title}</h3>
+          <FavoriteButton
+            apartmentId={apartment._id}
+            isInitiallyFavorited={isFavorited}
+            onClick={onToggleFavorite}
+          />
+        </div>
+        
         <p className="text-gray-600 mt-1">
          &#128205; {address.street}, {address.city}, {address.country}
         </p>
@@ -129,7 +133,10 @@ const ListingCard = ({ apartment, isFavorited, onToggleFavorite }) => {
           <span>&#128705; {bathrooms} Baths</span>
           <span>{area} sqft</span>
         </div>
-        <p><span className="text-xs">Amenities:</span> {amenities}</p>
+        <p>
+          <span className="text-xs">Amenities:</span>{" "}
+          {Array.isArray(amenities) ? amenities.join(", ") : amenities}
+        </p>
         <p><span className="text-xs">Status:</span> {status}</p>
         <p>
           <span className="text-xs">Neighborhood Rating: </span>
@@ -142,6 +149,28 @@ const ListingCard = ({ apartment, isFavorited, onToggleFavorite }) => {
             {emojiMap[neighborhoodRating] || "N/A"}
           </span>
         </p>
+        {showActions && (
+          <div className="grid grid-cols-2 gap-10  justify-items-center mt-4">
+            <button
+                onClick={() => {
+                  if (apartment?._id) {
+                    router.push(`/apartment/apartmentEdit?id=${apartment._id}`);
+                  } else {
+                    alert("Apartment ID is missing.");
+                  }
+                }}
+              >
+                Edit
+            </button>
+            {onDeleteRequest && (
+              <button
+              onClick={onDeleteRequest}
+              >
+                Delete
+              </button>
+            )}
+            </div>
+          )}
       </div>
     </div>
   );

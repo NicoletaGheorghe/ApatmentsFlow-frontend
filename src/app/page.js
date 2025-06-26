@@ -16,7 +16,7 @@ export default function Home() {
         <h2 className="text-2xl md:text-4xl font-bold m-10 ">Your smart apartment search organiser</h2>
         <p className="text-xl md:text-2xl"><span className="font-bold">ApartmentsFlow</span> helps you search, compare, and organize apartment listings with built-in tools for exploring neighborhoods, tracking favorites, and planning your daily commute.</p>
         <p className="text-xl md:text-2xl ">Start your search today and make apartment hunting stress-free.</p>
-        <p className="text-xl md:text-2xl font-bold mt-20 text-[var(--color-secondary)] "><Link href="/auth/register" className="hover:text-[var(--color-accent)]">Sign up</Link> to save listings.</p>
+        <p className="text-xl md:text-2xl font-bold mt-20 text-[var(--color-secondary)] "><Link href="/auth/register" className="hover:text-[var(--color-accent)] underline underline-offset-2">Sign up</Link> to save listings.</p>
       </div>
     </div>
   );
