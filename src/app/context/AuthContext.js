@@ -28,8 +28,8 @@ export const AuthProvider =({ children }) => {
     };
     checkAuth();
 }, []);
-    const register = async (name, email, password) => {
-        const response = await apiClient.register(name, email, password);
+    const register = async (name, email, password, profileImage) => {
+        const response = await apiClient.register(name, email, password, profileImage);
         setIsLoggedIn(true);
         const userRes = await apiClient.getProfile();
         setUser(userRes.data);
