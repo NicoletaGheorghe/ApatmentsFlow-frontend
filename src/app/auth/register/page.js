@@ -38,7 +38,7 @@ export default function Register() {
 
       if (profileImageFile) {
         profileImageUrl = await uploadImageToCloudinary(profileImageFile);
-        setRegistrationForm(prev => ({ ...prev, profileImage: profileImageUrl }));
+        //setRegistrationForm(prev => ({ ...prev, profileImage: profileImageUrl }));
       }
 
       const apiClient = new ApiClient();
